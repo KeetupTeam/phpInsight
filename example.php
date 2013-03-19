@@ -1,17 +1,31 @@
 <?php
 include 'sentiment.class.php';
 
+function getTimeline($count, $username) {
+  	$url = 'http://api.twitter.com/1/statuses/user_timeline.json?screen_name='.$username.'&count='.$count;
+  	$twitterci = curl_init($url); 
+	curl_setopt($twitterci, CURLOPT_RETURNTRANSFER, TRUE); 
+	$twitterinput = curl_exec($twitterci); 
+	curl_close($twitterci);
+
+	return json_decode($twitterinput); 
+}
+
+$username = (empty($_GET['username'])) ? 'keetup' : $_GET['username'];
+
+$tw = getTimeline(100, $username);
+
+$examples = array();
+
+if (!empty($tw)) {
+	foreach($tw as $t) {
+		$examples[] = $t->text;
+	}
+}
+
 $sentiment = new Sentiment();
 
-$examples = array(
-	1 => 'Weather today is rubbish',
-	2 => 'This cake looks amazing',
-	3 => 'His skills are mediocre',
-	4 => 'He is very talented',
-	5 => 'She is seemingly very agressive',
-	6 => 'Marie was enthusiastic about the upcoming trip. Her brother was also passionate about her leaving - he would finally have the house for himself.',
-	7 => 'To be or not to be?',
-);
+
 ?>
 <html>
 	<head>
@@ -74,4 +88,3 @@ $examples = array(
 
 	</body>
 </html>
-
